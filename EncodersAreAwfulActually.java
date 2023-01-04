@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -19,7 +20,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-@TeleOp
+@Autonomous
 public class EncodersAreAwfulActually extends LinearOpMode {
     // This is the current auto I think we're going to end up using
     // I haven't checked any of the measurements or tested any of it though
@@ -68,6 +69,14 @@ public class EncodersAreAwfulActually extends LinearOpMode {
         targets.activate();
 
         // hardware
+        BNO055IMU imu = hardwareMap.get(BNO055IMU.class, "imu");
+        BNO055IMU.Parameters params = new BNO055IMU.Parameters();
+        params.angleUnit = BNO055IMU.AngleUnit.RADIANS;
+        imu.initialize(params);
+
+        telemetry.addLine("IMU Initialized");
+        telemetry.update();
+
         lf = hardwareMap.dcMotor.get("LF");
         lb = hardwareMap.dcMotor.get("LB");
         rf = hardwareMap.dcMotor.get("RF");
