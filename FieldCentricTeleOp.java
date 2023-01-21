@@ -18,13 +18,22 @@ public class FieldCentricTeleOp extends LinearOpMode {
         DcMotor motorFrontRight = hardwareMap.dcMotor.get("RF");
         DcMotor motorBackRight = hardwareMap.dcMotor.get("RB");
 
-        // CRServo grabber = hardwareMap.crservo.get("grabber");
-        // DcMotor lift = hardwareMap.dcMotor.get("lift");
+        CRServo grabber = hardwareMap.crservo.get("grabber");
+        DcMotor lift1 = hardwareMap.dcMotor.get("lift1");
+        DcMotor lift2 = hardwareMap.dcMotor.get("lift2");
 
         // Reverse the right side motors
         // Reverse left motors if you are using NeveRests
         motorFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        motorFrontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorFrontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorBackRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorBackLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        lift1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        lift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Retrieve the IMU from the hardware map
         BNO055IMU imu = hardwareMap.get(BNO055IMU.class, "imu");
@@ -76,16 +85,19 @@ public class FieldCentricTeleOp extends LinearOpMode {
             motorBackRight.setPower(backRightPower);
 
             // lift controls
-            /*
+            double liftPower = 1;
+
             if (gamepad2.right_bumper) {
-                lift.setPower(1);
+                lift1.setPower(liftPower);
+                lift2.setPower(-liftPower);
 
             } else if (gamepad2.left_bumper) {
-                lift.setPower(-1);
+                lift1.setPower(-liftPower);
+                lift2.setPower(liftPower);
 
             } else {
-                lift.setPower(0);
-
+                lift1.setPower(0);
+                lift2.setPower(0);
             }
 
             // grabber controls
@@ -99,7 +111,7 @@ public class FieldCentricTeleOp extends LinearOpMode {
                 grabber.setPower(0);
             }
 
-             */
+
         }
     }
 }
