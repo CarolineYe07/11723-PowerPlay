@@ -23,13 +23,12 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 @Autonomous
 public class EncodersAreAwfulActually extends LinearOpMode {
     // This is the current auto I think we're going to end up using
-    // I haven't checked any of the measurements or tested any of it though
 
     private DcMotor lf, rf, lb, rb;
 
-    public static final double ticksPerMotorRev = 383.6;
-    public static final double driveGearReduction = 0.5;
-    public static final double wheelDiameterInches = 4;
+    public static final double ticksPerMotorRev = 537.7;
+    public static final double driveGearReduction = 1;
+    public static final double wheelDiameterInches = 3.77953;
     public static final double ticksPerInch = (ticksPerMotorRev * driveGearReduction) / (wheelDiameterInches * 3.14159265359);
 
     BNO055IMU imu;
@@ -71,7 +70,7 @@ public class EncodersAreAwfulActually extends LinearOpMode {
         // hardware
         BNO055IMU imu = hardwareMap.get(BNO055IMU.class, "imu");
         BNO055IMU.Parameters params = new BNO055IMU.Parameters();
-        params.angleUnit = BNO055IMU.AngleUnit.RADIANS;
+        // params.angleUnit = BNO055IMU.AngleUnit.RADIANS;
         imu.initialize(params);
 
         telemetry.addLine("IMU Initialized");
@@ -117,40 +116,50 @@ public class EncodersAreAwfulActually extends LinearOpMode {
 
         sleep(1000);
 
-        int forward_dist = 18;
-        int strafe_dist = 36;
+        int forward_dist = 27;
+        int strafe_dist = 26;
         double speed = 0.75;
-        int timeoutS = 15;
+        int timeoutS = 300;
 
-        if (flowers.isVisible()) {
-            // location 1
-            telemetry.addLine("flowers");
-            telemetry.update();
+        while (opModeIsActive()) {
+            if (flowers.isVisible()) {
+                // location 1
+                telemetry.addLine("flowers");
+                telemetry.update();
 
-            encoderDrive(speed, strafe_dist, timeoutS, true);
-            encoderDrive(speed, forward_dist, timeoutS, false);
+                encoderDrive(speed, strafe_dist, timeoutS, true);
+                encoderDrive(speed, forward_dist, timeoutS, false);
 
-        } else if (gears.isVisible()) {
-            // location 2
-            telemetry.addLine("gears");
-            telemetry.update();
+                break;
 
-            encoderDrive(speed, forward_dist, timeoutS, false);
+            } else if (gears.isVisible()) {
+                // location 2
+                telemetry.addLine("gears");
+                telemetry.update();
 
-        } else if (stars.isVisible()) {
-            // location 3
+                encoderDrive(speed, forward_dist, timeoutS, false);
 
-            telemetry.addLine("stars");
-            telemetry.update();
+                break;
 
-            encoderDrive(speed, -strafe_dist, timeoutS, true);
-            encoderDrive(speed, forward_dist, timeoutS, false);
+            } else if (stars.isVisible()) {
+                // location 3
 
-        } else {
-            telemetry.addLine("No signals seen");
-            telemetry.update();
+                telemetry.addLine("stars");
+                telemetry.update();
 
+                encoderDrive(speed, -strafe_dist, timeoutS, true);
+                encoderDrive(speed, forward_dist, timeoutS, false);
+
+                break;
+
+            } else {
+                telemetry.addLine("No signals seen");
+                telemetry.update();
+
+
+            }
         }
+
 
     }
 
@@ -162,8 +171,8 @@ public class EncodersAreAwfulActually extends LinearOpMode {
         int lbPos = lb.getCurrentPosition();
         int rbPos = lb.getCurrentPosition();
 
-        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, ZYX, AngleUnit.DEGREES);
-        double startAngle = angles.firstAngle;
+        // angles = imu.getAngularOrientation(AxesReference.INTRINSIC, ZYX, AngleUnit.DEGREES);
+        // double startAngle = angles.firstAngle;
 
         if (strafe) {
             newlfTarget = lfPos + (int) (inches * ticksPerInch);
@@ -187,40 +196,39 @@ public class EncodersAreAwfulActually extends LinearOpMode {
         rf.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rb.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        lf.setPower(Math.abs(speed));
-        lb.setPower(Math.abs(speed));
-        rf.setPower(Math.abs(speed));
-        rb.setPower(Math.abs(speed));
-
         runtime.reset();
+
 
         while (runtime.seconds() < timeoutS && (lf.isBusy() && rf.isBusy() && lb.isBusy() && rb.isBusy())) {
             //Adjust for weight distribution offsetting the strafe by using proportional gyro correction
-            if (!strafe) {
-                double error = kP * (startAngle - angles.firstAngle);
-                angles = imu.getAngularOrientation(AxesReference.INTRINSIC, ZYX, AngleUnit.DEGREES);
-                telemetry.addData("Start Angle", startAngle);
-                telemetry.addData("Current Angle", angles.firstAngle);
-                telemetry.addData("error", error);
-                telemetry.update();
-                if (error > 0) {
-                    lf.setPower(Math.abs(speed) - error);
-                    rf.setPower(Math.abs(speed) + error);
-                    lb.setPower(Math.abs(speed) - error);
-                    rb.setPower(Math.abs(speed) + error);
-                } else if (error < 0) {
-                    lf.setPower(Math.abs(speed) + error);
-                    rf.setPower(Math.abs(speed) - error);
-                    lb.setPower(Math.abs(speed) + error);
-                    rb.setPower(Math.abs(speed) - error);
-                }
-            }
+            lf.setPower(Math.abs(speed));
+            lb.setPower(Math.abs(speed));
+            rf.setPower(Math.abs(speed));
+            rb.setPower(Math.abs(speed));
+
+            telemetry.addData("LF Power", lf.getPower());
+            telemetry.addData("LB Power", lb.getPower());
+            telemetry.addData("RF Power", rf.getPower());
+            telemetry.addData("RB Power", rb.getPower());
+
+            telemetry.addData("LF Position", lf.getCurrentPosition());
+            telemetry.addData("LB Position", lb.getCurrentPosition());
+            telemetry.addData("RF Position", rf.getCurrentPosition());
+            telemetry.addData("RB Position", rb.getCurrentPosition());
+            telemetry.update();
+
         }
+
 
         lf.setPower(0);
         lb.setPower(0);
         rf.setPower(0);
         rb.setPower(0);
+
+        lf.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        lb.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rf.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rb.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         lf.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
         lb.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
